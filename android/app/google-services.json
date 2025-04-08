@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "694779508998",
+    "project_id": "yss-eparcha",
+    "storage_bucket": "yss-eparcha.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:694779508998:android:93a4d798317d79138f8687",
+        "android_client_info": {
+          "package_name": "com.example.ysseparcha"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAjWcmq7-hnXfGKNELNvD84x6wpedbLicY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
