@@ -21,13 +21,11 @@ class _AddUserState extends State<AddUser> {
 
   String role = 'usher';
   String error = '';
-  String successMessage = '';
   bool isSubmitting = false;
 
   Future<void> handleSubmit() async {
     setState(() {
       error = '';
-      successMessage = '';
     });
 
     // Validate fields
@@ -39,6 +37,14 @@ class _AddUserState extends State<AddUser> {
         _passwordController.text.isEmpty) {
       setState(() {
         error = 'All fields are required.';
+      });
+      return;
+    }
+
+    // Validate email format
+    if (!isValidEmail(_emailController.text)) {
+      setState(() {
+        error = 'Please enter a valid email address.';
       });
       return;
     }
@@ -59,7 +65,7 @@ class _AddUserState extends State<AddUser> {
 
     try {
       // Create user in Firebase Auth
-      final userCredential = await FirebaseAuth.instance.createUserWithEmailAndPassword(
+      await FirebaseAuth.instance.createUserWithEmailAndPassword(
         email: _emailController.text,
         password: _passwordController.text,
       );
@@ -79,10 +85,6 @@ class _AddUserState extends State<AddUser> {
       // Add the user data to Firestore
       await userRef.set(userDetails);
 
-      setState(() {
-        successMessage = 'User created successfully!';
-      });
-
       // Reset the form
       _nameController.clear();
       _emailController.clear();
@@ -92,22 +94,57 @@ class _AddUserState extends State<AddUser> {
       _passwordController.clear();
       _deptController.clear();
       setState(() {
-        role = 'usher';
+        role = 'usher';  // Reset role to 'usher'
       });
 
-      // Optionally, navigate to another page (like admin dashboard) or show a success popup
-      await Future.delayed(const Duration(seconds: 2));
-      Navigator.pushNamed(context, '/admin-dashboard'); // Navigate after 2 seconds
+      // Delay to simulate processing time
+      await Future.delayed(const Duration(seconds: 3));
 
+      if (mounted) {
+        setState(() {
+          isSubmitting = false; // Stop the spinner
+        });
+
+        // Show the success dialog
+        _showSuccessDialog();
+      }
     } catch (e) {
-      setState(() {
-        error = 'Error creating user: $e';
-      });
-    } finally {
-      setState(() {
-        isSubmitting = false;
-      });
+      if (mounted) {
+        setState(() {
+          error = 'Error creating user: $e';
+          isSubmitting = false; // Stop the spinner on error
+        });
+      }
     }
+  }
+
+  // Email validation function
+  bool isValidEmail(String email) {
+    // A simple regex to validate the email format
+    String pattern = r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$';
+    RegExp regex = RegExp(pattern);
+    return regex.hasMatch(email);
+  }
+
+  // Show success dialog
+  void _showSuccessDialog() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Success'),
+          content: Text('User created successfully!'),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop(); // Close the dialog
+              },
+              child: Text('OK'),
+            ),
+          ],
+        );
+      },
+    );
   }
 
   @override
@@ -125,20 +162,7 @@ class _AddUserState extends State<AddUser> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              if (successMessage.isNotEmpty)
-                Container(
-                  margin: EdgeInsets.only(bottom: 20),
-                  padding: EdgeInsets.all(12),
-                  decoration: BoxDecoration(
-                    color: Colors.green,
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: Text(
-                    successMessage,
-                    style: TextStyle(color: Colors.white, fontSize: 16),
-                    textAlign: TextAlign.center,
-                  ),
-                ),
+              // Error Messages
               if (error.isNotEmpty)
                 Container(
                   margin: EdgeInsets.only(bottom: 20),
@@ -153,6 +177,7 @@ class _AddUserState extends State<AddUser> {
                     textAlign: TextAlign.center,
                   ),
                 ),
+              // Form Fields
               _buildTextField(_nameController, 'Full Name', Icons.person),
               _buildTextField(_emailController, 'Email', Icons.email),
               _buildRoleDropdown(),

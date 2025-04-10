@@ -16,6 +16,7 @@ class _UserManagementState extends State<UserManagement> {
   final _ageController = TextEditingController();
   final _addressController = TextEditingController();
   final _deptController = TextEditingController();
+  String role = 'usher'; // Default role value
 
   bool isLoading = false;
   bool isSubmitting = false;
@@ -44,6 +45,7 @@ class _UserManagementState extends State<UserManagement> {
         _ageController.text = data['age'] ?? '';
         _addressController.text = data['address'] ?? '';
         _deptController.text = data['dept'] ?? '';
+        role = data['role'] ?? 'usher'; // Set the user's role
         userEmail = _emailController.text; // Store the email for display
       } else {
         setState(() {
@@ -79,6 +81,7 @@ class _UserManagementState extends State<UserManagement> {
         'age': _ageController.text,
         'address': _addressController.text,
         'dept': _deptController.text,
+        'role': role, // Update the user's role
       });
 
       setState(() {
@@ -248,6 +251,40 @@ class _UserManagementState extends State<UserManagement> {
                     _buildTextField(_addressController, 'Address', Icons.home),
                     _buildTextField(_deptController, 'Department', Icons.business),
 
+                    // Role Dropdown
+                    Padding(
+                      padding: const EdgeInsets.only(bottom: 20.0),
+                      child: DropdownButtonFormField<String>(
+                        value: role,
+                        onChanged: (String? newValue) {
+                          setState(() {
+                            role = newValue!;
+                          });
+                        },
+                        decoration: InputDecoration(
+                          labelText: 'Role',
+                          labelStyle: TextStyle(color: Colors.orangeAccent),
+                          prefixIcon: Icon(Icons.person, color: Colors.orangeAccent),
+                          filled: true,
+                          fillColor: Colors.white,
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(8),
+                            borderSide: BorderSide(color: Colors.orangeAccent, width: 1),
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(8),
+                            borderSide: BorderSide(color: Colors.orangeAccent, width: 2),
+                          ),
+                        ),
+                        items: ['usher', 'admin', 'chemist', 'doctor']
+                            .map((roleOption) => DropdownMenuItem<String>(
+                          value: roleOption,
+                          child: Text(roleOption),
+                        ))
+                            .toList(),
+                      ),
+                    ),
+
                     SizedBox(height: 20),
 
                     // Update button
@@ -305,7 +342,7 @@ class _UserManagementState extends State<UserManagement> {
         keyboardType: keyboardType,
         decoration: InputDecoration(
           labelText: label,
-          labelStyle: TextStyle(color: Colors.orangeAccent), // Orange label
+          labelStyle: TextStyle(color: Colors.orangeAccent),
           prefixIcon: Icon(icon, color: Colors.orangeAccent),
           filled: true,
           fillColor: Colors.white,
